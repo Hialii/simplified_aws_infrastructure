@@ -45,3 +45,31 @@ resource "aws_route_table_association" "main-route-table-association" {
    subnet_id = aws_subnet.public-subnet[count.index].id
    route_table_id = aws_route_table.main-route-table.id
 }
+
+# Subnets privadas para o RDS
+resource "aws_subnet" "rds-private-subnet" {
+   count = length(var.availability_zone) 
+
+   vpc_id = aws_vpc.main-vpc.id
+   cidr_block = var.subnet_private_cidr[count.index]
+   availability_zone = var.availability_zone[count.index]
+
+   tags = {
+      Name = "rds-private-subnet-${count.index}"
+   }
+}
+
+resource "aws_route_table" "rds-route-table"{
+   vpc_id = aws_vpc.main-vpc.id
+
+   tags = {
+      Name = "route-table-rds"
+   }
+}
+
+resource "aws_route_table_association" "rds-route-table-association" {
+   count = length(var.availability_zone) 
+
+   subnet_id = aws_subnet.rds-private-subnet[count.index].id
+   route_table_id = aws_route_table.rds-route-table.id
+}
