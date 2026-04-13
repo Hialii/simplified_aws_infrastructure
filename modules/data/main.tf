@@ -31,3 +31,12 @@ resource "aws_db_instance" "rds-database" {
       Name = "main-rds"
    }
 }
+
+# Bucket S3
+resource "aws_s3_bucket" "main-bucket" {
+   bucket = "my-main-bucket-222333"
+
+   tags = {
+      Name = "main-bucket"
+   }
+}

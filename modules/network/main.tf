@@ -78,5 +78,5 @@ resource "aws_route_table_association" "rds-route-table-association" {
 resource "aws_vpc_endpoint" "s3-endpoint" {
    vpc_id = aws_vpc.main-vpc.id
    service_name = "com.amazonaws.${var.s3_region}.s3"
-   route_table_ids = aws_route_table.main-route-table.id
+   route_table_ids = [aws_route_table.main-route-table.id]
 }
