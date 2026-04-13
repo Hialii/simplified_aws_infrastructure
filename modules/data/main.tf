@@ -40,3 +40,22 @@ resource "aws_s3_bucket" "main-bucket" {
       Name = "main-bucket"
    }
 }
+
+# Váriavel do SSM Parameter Store para o RDS
+resource "aws_ssm_parameter" "db_password" {
+   name = "/backend/rds/password"
+   type = "SecureString"
+   value = var.db_password
+}
+
+resource "aws_ssm_parameter" "db_username" {
+   name = "/backend/rds/usermame" 
+   type = "String"
+   value = var.db_username
+}
+
+resource "aws_ssm_parameter" "db_endpoint" {
+   name = "/backend/rds/endpoint"
+   type = "String"
+   value = aws_db_instance.rds-database.endpoint
+}
