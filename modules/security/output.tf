@@ -10,5 +10,5 @@ output "sg_rds_id" {
 
 output "ec2_iam_profile_name" {
   description = "Instance Profile Name for EC2 instances"
-  value       = aws_iam_instance_profile.ec2_profile.name
+  value       = aws_iam_instance_profile.ec2-instance-profile.name
 }
