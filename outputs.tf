@@ -34,3 +34,8 @@ output "ec2_iam_profile_name" {
   description = "Instance Profile Name for EC2 instances"
   value       = module.security.ec2_iam_profile_name
 }
+
+output "rds_endpoint" {
+  description = "Endpoint of the RDS instance"
+  value = module.data.rds_endpoint
+}

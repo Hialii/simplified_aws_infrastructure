@@ -26,3 +26,11 @@ module "security" {
    my_ip = var.my_ip
    vpc_id = module.network.vpc_id
 }
+
+module "data" {
+   source = "./modules/data"
+   rds_sg = module.security.sg_rds_id
+   db_username = var.db_username
+   db_password = var.db_password
+   rds_private_subnet_ids = module.network.rds_private_subnets_id
+}
