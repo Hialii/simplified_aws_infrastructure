@@ -19,6 +19,7 @@ module "network" {
    availability_zone = ["us-east-2a", "us-east-2b"]
    subnet_public_cidr = ["10.0.1.0/24", "10.0.2.0/24"]
    subnet_private_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
+   s3_region = "us-east-2"
 }
 
 module "security" {

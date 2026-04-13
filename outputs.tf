@@ -39,3 +39,8 @@ output "rds_endpoint" {
   description = "Endpoint of the RDS instance"
   value = module.data.rds_endpoint
 }
+
+output "endpoint_vpc_s3" {
+   description = "Endpoint for S3 in the VPC"
+   value = module.network.endpoint_vpc_s3
+}
