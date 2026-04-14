@@ -35,3 +35,11 @@ module "data" {
    db_password = var.db_password
    rds_private_subnet_ids = module.network.rds_private_subnets_id
 }
+
+module "compute" {
+   source = "./modules/compute"
+   ec2_subnet_id = module.network.public_subnets_id[0]
+   sg_web_ec2_id = module.security.sg_web_ec2_id
+   ec2_instance_profile = module.security.ec2_iam_profile_name
+   ec2_key_pair_name = var.ec2_key_pair_name
+}

@@ -44,3 +44,13 @@ output "endpoint_vpc_s3" {
    description = "Endpoint for S3 in the VPC"
    value = module.network.endpoint_vpc_s3
 }
+
+output "ec2_public_ip" {
+   description = "Public IP address of the EC2 instance"
+   value = module.compute.ec2_public_ip
+}
+
+output "ec2_instance_id" {
+   description = "ID of the EC2 instance"
+   value = module.compute.ec2_instance_id 
+}

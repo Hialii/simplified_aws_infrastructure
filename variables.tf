@@ -7,7 +7,6 @@ variable "my_ip" {
 variable "db_username" {
    description = "Username for RDS database"
    type = string
-   sensitive = true
 }
 
 variable "db_password" {
@@ -16,3 +15,7 @@ variable "db_password" {
    sensitive = true
 }
 
+variable "ec2_key_pair_name" {
+   description = "Key pair name for EC2 instance"
+   type = string 
+}
