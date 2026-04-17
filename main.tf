@@ -32,4 +32,8 @@ module "compute" {
 module "edge" {
    source = "./modules/edge"
    domain_name = var.domain_name
+
+   providers = {
+      aws.us_east_1 = aws.us_east_1 # Nome dentro do módulo = nome no provedor global
+   }
 }
