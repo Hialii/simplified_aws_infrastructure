@@ -1,18 +1,3 @@
-terraform {
-   required_providers {
-      aws = {
-         source = "hashicorp/aws"
-         version = "~> 5.0"
-      }
-   }
-
-   required_version = ">= 1.6"
-}
-
-provider "aws" {
-   region = "us-east-2"
-}
-
 module "network" {
    source = "./modules/network"
    base_cidr_block = "10.0.0.0/16"
@@ -42,4 +27,9 @@ module "compute" {
    sg_web_ec2_id = module.security.sg_web_ec2_id
    ec2_instance_profile = module.security.ec2_iam_profile_name
    ec2_key_pair_name = var.ec2_key_pair_name
+}
+
+module "edge" {
+   source = "./modules/edge"
+   domain_name = var.domain_name
 }

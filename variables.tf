@@ -19,3 +19,8 @@ variable "ec2_key_pair_name" {
    description = "Key pair name for EC2 instance"
    type = string 
 }
+
+variable "domain_name" {
+   description = "Domain name from Registro.br"
+   type = string
+}

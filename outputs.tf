@@ -54,3 +54,8 @@ output "ec2_instance_id" {
    description = "ID of the EC2 instance"
    value = module.compute.ec2_instance_id 
 }
+
+output "route53_name_servers" {
+   description = "Name servers for the Route53 hosted zone"
+   value = module.edge.route53_name_servers
+}
