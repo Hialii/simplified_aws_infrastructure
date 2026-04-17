@@ -59,3 +59,8 @@ output "route53_name_servers" {
    description = "Name servers for the Route53 hosted zone"
    value = module.edge.route53_name_servers
 }
+
+output "cloudfront_cert_arn" {
+   description = "ARN of the ACM certificate for CloudFront"
+   value = module.edge.cloudfront_cert_arn
+}
