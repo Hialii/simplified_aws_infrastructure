@@ -41,9 +41,115 @@ resource "aws_route53_record" "route53_record" {
    zone_id = aws_route53_zone.route53_zone.zone_id # indica qual zona do Route53 deve ser usada para criar os registros de validação do certificado SSL
 }
 
+# Registro para dominio e subdominio
+resource "aws_route53_record" "frontend_record" {
+   zone_id = aws_route53_zone.route53_zone.zone_id
+   name = var.domain_name
+   type = "A"
+   alias {
+      name = aws_cloudfront_distribution.cloudfront_dist.domain_name
+      zone_id = aws_cloudfront_distribution.cloudfront_dist.hosted_zone_id
+      evaluate_target_health = false
+   }
+} 
+
+resource "aws_route53_record" "backend_record" {
+   zone_id = aws_route53_zone.route53_zone.zone_id
+   name = "api.${var.domain_name}"
+   type = "A"
+   alias {
+      name = aws_cloudfront_distribution.cloudfront_dist.domain_name
+      zone_id = aws_cloudfront_distribution.cloudfront_dist.hosted_zone_id
+      evaluate_target_health = false
+   }
+} 
 # Valida o certificado SSL
 resource "aws_acm_certificate_validation" "cloudfront_cert_validation" {
    provider = aws.us_east_1
    certificate_arn = aws_acm_certificate.cloudfront_cert.arn # indica qual certificado SSL deve ser validado
    validation_record_fqdns = [for record in aws_route53_record.route53_record : record.fqdn] # indica quais registros DNS devem ser usados para validar o certificado SSL
+}
+
+
+# Cloudfront 
+resource "aws_cloudfront_distribution" "cloudfront_dist" {
+   # Origem 1: Instancia EC2
+   origin {
+      domain_name = var.ec2_public_dns # Domínio público da instância EC2
+      origin_id = "ec2-backend" # Identificador da origem
+      custom_origin_config {
+         http_port = 8080
+         https_port = 443
+         origin_protocol_policy = "http-only" # Política de protocolo para a origem (HTTP apenas)
+         origin_ssl_protocols = ["TLSv1.2"]
+      }
+   }
+
+   enabled = true
+   is_ipv6_enabled = true
+   aliases = [var.domain_name, "api.${var.domain_name}"] # Domínios personalizados para a distribuição CloudFront
+
+   # Comportamento para API (api.codecraft.app.br)
+   ordered_cache_behavior {
+      target_origin_id = "ec2-backend" # Identificador da origem para a qual esse comportamento se aplica
+      path_pattern = "/api/*"
+      allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods = ["GET", "HEAD"]
+
+      # Repasse de Headers, Cookies e Query Strings para a origem, necessário para o funcionamento do JWT
+      forwarded_values {
+         query_string = true
+         headers = ["*"] # Encaminha Content-Type, Authorization e outros cabeçalhos necessários para o funcionamento do JWT
+         cookies {
+            forward = "all" # Encaminha todos os cookies para a origem, necessário para o funcionamento do JWT
+         }
+      }
+
+      viewer_protocol_policy = "redirect-to-https" # Força o uso de HTTPS
+      min_ttl = 0 
+      default_ttl = 0 
+      max_ttl = 0 
+   }
+
+   # Comportamento padrão para o restante do tráfego (Adicionr o comportamento para o frontend depois)
+   default_cache_behavior {
+      target_origin_id = "ec2-backend" # Identificador da origem
+      allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods = ["GET", "HEAD"]
+
+      # Repasse de Headers, Cookies e Query Strings para a origem, necessário para o funcionamento do JWT
+      forwarded_values {
+         query_string = true
+         headers = ["*"] # Encaminha Content-Type, Authorization e outros cabeçalhos necessários para o funcionamento do JWT
+         cookies {
+            forward = "all" # Encaminha todos os cookies para a origem, necessário para o funcionamento do JWT
+         }
+      }
+
+      viewer_protocol_policy = "redirect-to-https" # Força o uso de HTTPS
+
+      #TTL em 0 para garantir que o CloudFront nunca entregue conteúdo em cache, sempre buscando a versão mais recente na origem (instância EC2)
+      min_ttl = 0
+      default_ttl = 0
+      max_ttl = 0
+   }
+
+   # Configuração do Certificado SSL para a distribuição CloudFront
+   viewer_certificate {
+      acm_certificate_arn = aws_acm_certificate.cloudfront_cert.arn 
+      ssl_support_method = "sni-only" # Método de suporte SSL (SNI apenas)
+      minimum_protocol_version = "TLSv1.2_2021" # Versão mínima do protocolo TLS para conexões SSL
+   }
+
+   # Restrições de acesso para a distribuição CloudFront
+   restrictions {
+      geo_restriction {
+         restriction_type = "none" # Sem restrições geográfias para acessar a distribuição CloudFront
+      }
+   }
+
+   tags = {
+      Project = "MyApp"
+   }
+
 }
