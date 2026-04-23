@@ -1,5 +1,7 @@
 resource "aws_vpc" "main-vpc" {
    cidr_block = var.base_cidr_block
+   enable_dns_support = true # True por padrão
+   enable_dns_hostnames = true # Necessário para que as instâncias EC2 na VPC tenham DNS público atribuído
 
    tags = {
       Name = "main-vpc"
