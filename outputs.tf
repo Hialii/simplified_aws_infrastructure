@@ -50,6 +50,11 @@ output "ec2_public_ip" {
    value = module.compute.ec2_public_ip
 }
 
+output "ec2_public_dns" {
+   description = "Public DNS of the EC2 instace"
+   value = module.compute.ec2_public_dns
+}
+
 output "ec2_instance_id" {
    description = "ID of the EC2 instance"
    value = module.compute.ec2_instance_id 

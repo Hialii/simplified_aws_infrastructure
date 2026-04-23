@@ -32,6 +32,7 @@ module "compute" {
 module "edge" {
    source = "./modules/edge"
    domain_name = var.domain_name
+   ec2_public_dns = module.compute.ec2_public_dns
 
    providers = {
       aws.us_east_1 = aws.us_east_1 # Nome dentro do módulo = nome no provedor global
