@@ -32,9 +32,18 @@ resource "aws_db_instance" "rds-database" {
    }
 }
 
-# Bucket S3
+# Bucket S3 (backend)
 resource "aws_s3_bucket" "main-bucket" {
-   bucket = "my-main-bucket-222333"
+   bucket = "main-bucket-backend"
+
+   tags = {
+      Name = "main-bucket"
+   }
+}
+
+# Bucket S3 (frontend)
+resource "aws_s3_bucket" "main-bucket-frontend" {
+   bucket = "main-bucket-fontend"
 
    tags = {
       Name = "main-bucket"
