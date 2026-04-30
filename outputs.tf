@@ -30,6 +30,7 @@ output "sg_rds_id" {
   value       = module.security.sg_rds_id
 }
 
+# Compute module outputs
 output "ec2_iam_profile_name" {
   description = "Instance Profile Name for EC2 instances"
   value       = module.security.ec2_iam_profile_name
@@ -60,6 +61,7 @@ output "ec2_instance_id" {
    value = module.compute.ec2_instance_id 
 }
 
+# Edge module outputs
 output "route53_name_servers" {
    description = "Name servers for the Route53 hosted zone"
    value = module.edge.route53_name_servers
@@ -68,4 +70,15 @@ output "route53_name_servers" {
 output "cloudfront_cert_arn" {
    description = "ARN of the ACM certificate for CloudFront"
    value = module.edge.cloudfront_cert_arn
+}
+
+# Data module outputs
+output "s3_bucket_backend" {
+  description = "Name of the S3 bucket for the backend"
+  value = module.data.s3_bucket_backend
+}
+
+output "s3_bucket_frontend" {
+  description = "Name of the S3 bucket for the frontend"
+  value = module.data.s3_bucket_frontend
 }
