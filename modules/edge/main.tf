@@ -72,6 +72,14 @@ resource "aws_acm_certificate_validation" "cloudfront_cert_validation" {
 
 
 # Cloudfront 
+resource "aws_cloudfront_origin_access_control" "s3_oac" {
+  name                              = "s3_oac_${var.domain_name}"
+  description                       = "Acesso seguro ao S3 do Frontend"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_cloudfront_distribution" "cloudfront_dist" {
    # Origem 1: Instancia EC2
    origin {
@@ -85,8 +93,16 @@ resource "aws_cloudfront_distribution" "cloudfront_dist" {
       }
    }
 
+  # Origem 2: Bucket S3 (Frontend) ---
+   origin {
+      domain_name              = var.s3_bucket_frontend 
+      origin_id                = "s3-frontend"
+      origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
+   }
+
    enabled = true
    is_ipv6_enabled = true
+   default_root_object = "index.html"
    aliases = [var.domain_name, "api.${var.domain_name}"] # Domínios personalizados para a distribuição CloudFront
 
    # Comportamento para API (api.codecraft.app.br)
@@ -111,27 +127,26 @@ resource "aws_cloudfront_distribution" "cloudfront_dist" {
       max_ttl = 0 
    }
 
-   # Comportamento padrão para o restante do tráfego (Adicionr o comportamento para o frontend depois)
+   # Comportamento padrão para o S3 (codecraft.app.br)
    default_cache_behavior {
-      target_origin_id = "ec2-backend" # Identificador da origem
-      allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      target_origin_id = "s3-frontend" # Identificador da origem
+      allowed_methods = ["GET", "HEAD", "OPTIONS"]
       cached_methods = ["GET", "HEAD"]
 
-      # Repasse de Headers, Cookies e Query Strings para a origem, necessário para o funcionamento do JWT
       forwarded_values {
-         query_string = true
-         headers = ["*"] # Encaminha Content-Type, Authorization e outros cabeçalhos necessários para o funcionamento do JWT
+         query_string = false 
+         headers      = []
          cookies {
-            forward = "all" # Encaminha todos os cookies para a origem, necessário para o funcionamento do JWT
+            forward = "none"
          }
       }
 
       viewer_protocol_policy = "redirect-to-https" # Força o uso de HTTPS
 
-      #TTL em 0 para garantir que o CloudFront nunca entregue conteúdo em cache, sempre buscando a versão mais recente na origem (instância EC2)
+
       min_ttl = 0
-      default_ttl = 0
-      max_ttl = 0
+      default_ttl = 3600 # 1h
+      max_ttl = 86400 # 24h
    }
 
    # Configuração do Certificado SSL para a distribuição CloudFront
